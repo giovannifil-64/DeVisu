@@ -1,0 +1,21 @@
+.DS_Store
+.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+
+### VisualStudioCode ###
+.vscode/*
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+### JetBrains+all Patch ###
+# Ignore everything but code style settings and run configurations
+# that are supposed to be shared within teams.
+.idea/*
