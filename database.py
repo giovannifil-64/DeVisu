@@ -33,13 +33,6 @@ def setup_database():
         create_table(conn, sql_create_users_table)
     else:
         print("Error! cannot create the database connection.")
-        
-def add_user(name, otp, vector):
-    conn = create_connection("users.db")
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO users (name, otp, vector) VALUES (?, ?, ?)", (name, otp, vector))
-    conn.commit()
-    conn.close()
 
 if __name__ == '__main__':
     setup_database()

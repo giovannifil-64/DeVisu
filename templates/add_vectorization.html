@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeVisu - Verify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='js/redirect.js') }}"></script>
+    <script>
+        window.onload = function () {
+            redirectAfterDelay(1250, "result_page");
+        };
+    </script>
+
+</head>
+
+<body>
+    <div class="step-bar">
+        <div class="step {% if step >= 1 %}current{% endif %}"></div>
+        <div class="step {% if step >= 2 %}current{% endif %}"></div>
+        <div class="step {% if step >= 3 %}current{% endif %}"></div>
+        <div class="step {% if step >= 4 %}current{% endif %}"></div>
+    </div>
+    <div class="content">
+        <h2>Wait a moment...</h2>
+    </div>
+</body>
+
+</html>
