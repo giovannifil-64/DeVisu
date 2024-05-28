@@ -1,0 +1,96 @@
+openapi: 3.0.0
+
+info:
+  title: "DeVisu REST API"
+  description: "API for DeVisu application"
+  version: "1.0.0"
+
+servers:
+  - url: "/api"
+
+components:
+  schemas:
+    User:
+      type: "object"
+      required:
+        - id
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        otp:
+          type: "string"
+        vector:
+          type: "string"
+  parameters:
+    userId:
+      name: "userId"
+      description: "ID of the user to get"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+
+paths:
+  /users:
+    get:
+      operationId: "users.read_all"
+      tags:
+        - "Users"
+      summary: "Read the list of users"
+      responses:
+        "200":
+          description: "Successfully read users list"
+    post:
+      operationId: "users.create"
+      tags:
+        - Users
+      summary: "Create a user"
+      requestBody:
+        description: "User to create"
+        required: True
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "201":
+          description: "Successfully created user"
+  /users/{userId}:
+    get:
+      operationId: "users.read_one"
+      tags:
+        - Users
+      summary: "Read one user"
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "Successfully read user"
+    put:
+      tags:
+        - Users
+      operationId: "users.update"
+      summary: "Update a user"
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "Successfully updated user"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "user"
+              $ref: "#/components/schemas/User"
+    delete:
+      tags:
+        - Users
+      operationId: "users.delete"
+      summary: "Delete a user"
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "204":
+          description: "Successfully deleted user"
