@@ -26,6 +26,11 @@ servers:
 
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
     User:
       type: "object"
       required:
@@ -47,6 +52,13 @@ components:
       required: True
       schema:
         type: "integer"
+    otp:
+      name: otp
+      in: path
+      required: true
+      schema:
+        type: string
+        description: One-time password of the user to get
 
 paths:
   /users:
@@ -58,6 +70,10 @@ paths:
       responses:
         "200":
           description: "Successfully read users list"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       operationId: "users.create"
       tags:
@@ -73,6 +89,10 @@ paths:
       responses:
         "201":
           description: "Successfully created user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /users/{userId}:
     get:
       operationId: "users.read_one"
@@ -84,6 +104,10 @@ paths:
       responses:
         "200":
           description: "Successfully read user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     put:
       tags:
         - Users
@@ -94,6 +118,10 @@ paths:
       responses:
         "200":
           description: "Successfully updated user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
       requestBody:
         content:
           application/json:
@@ -110,3 +138,33 @@ paths:
       responses:
         "204":
           description: "Successfully deleted user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/by_otp/{otp}:
+    get:
+      operationId: "users.read_by_otp"
+      tags:
+        - Users
+      summary: "Read a user by OTP"
+      parameters:
+        - name: otp
+          in: path
+          required: true
+          schema:
+            type: string
+            description: One-time password of the user to get
+      responses:
+        "200":
+          description: "Successfully read user"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

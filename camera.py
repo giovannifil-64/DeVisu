@@ -23,7 +23,7 @@ class VideoCamera:
  
     @classmethod
     def set_global_path(cls, entry):
-        cls.g_img_path = entry.strip()
+        cls.g_img_path = entry
  
     def get_frame(self):
         if self.camera_status == "Error": 
@@ -59,21 +59,14 @@ class VideoCamera:
         y1 = max(y - padding, 10) 
         x2 = min(x + w + padding, frame.shape[1]) 
         y2 = min(y + h + padding, frame.shape[0]) 
-         
+
         face_img = frame[y1:y2, x1:x2] 
- 
+
         img_filename = "captured_image{}.jpg".format(time.strftime("%Y%m%d-%H%M%S")) 
         cv2.imwrite(img_filename, face_img) 
         # Obtain full path of the captured image 
-        path = os.path.abspath(img_filename) 
-         
-        # Set the global image path using the class method 
-        VideoCamera.set_global_path(path) 
-        print(f"Image captured and saved as {VideoCamera.g_img_path}") 
- 
-"""# Example usage: 
-camera = VideoCamera() 
-# Simulate the get_frame process where an image is captured after face detection 
-frame_status = camera.get_frame() 
-if frame_status == "captured": 
-    print("Image Path:", VideoCamera.g_img_path)"""
+        path = os.path.abspath(img_filename)
+        
+        # Set the global image path directly
+        VideoCamera.g_img_path = path
+        print(f"Image captured and saved as {VideoCamera.g_img_path}")

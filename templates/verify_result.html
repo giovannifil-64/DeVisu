@@ -1,0 +1,46 @@
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>Verification Result</title>
+</head>
+
+<body>
+    <h1>Verification Result</h1>
+    {% if user %}
+    <h2>User Found</h2>
+    <p>ID: {{ user.id }}</p>
+    <p>Name: {{ user.name }}</p>
+    <p>OTP: {{ user.otp }}</p>
+    <p>Vector: {{ user.vector }}</p>
+    {% else %}
+    <h2>{{ error }}</h2>
+    {% endif %}
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeVisu - Verify Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="content">
+        {% if result %}
+        <h3>{{ result }}</h3>
+        <img src="{{ url_for('static', filename='img/verify_match.png') }}" alt="Verified" class="logo">
+        {% elif error %}
+        <h2>{{ error }}</h2>
+        <img src="{{ url_for('static', filename='img/verify_not_match.png') }}" alt="Not Verified" class="logo">
+        {% endif %}
+        <a href="{{ url_for('home') }}">Go Home</a>
+    </div>
+</body>
+
+</html>

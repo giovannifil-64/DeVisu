@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeVisu - Verify Capture</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        window.addEventListener('unload', function () {
+            fetch('/release_camera')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Camera released successfully');
+                    } else {
+                        console.error('Failed to release camera');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error releasing camera:', error);
+                });
+        });
+
+        function checkCaptureStatus() {
+            fetch('/check_capture_status')
+                .then(response => response.text())
+                .then(status => {
+                    if (status === 'captured') {
+                        window.location.href = '/verify_check';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking capture status:', error);
+                });
+        }
+
+        setInterval(checkCaptureStatus, 500);
+    </script>
+</head>
+<body>
+    <div class="content">
+        <h3>Look at the camera and wait a few seconds.</h3>
+        <img id="video-feed" class="video-container" src="{{ url_for('video_feed') }}" alt="Video Feed">
+    </div>
+</body>
+</html>

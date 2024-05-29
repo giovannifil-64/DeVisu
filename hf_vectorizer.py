@@ -48,6 +48,16 @@ def compare_face_vectors(vector1, vector2, threshold=0.5): #0.6
     else:
         return False
     
+def compare_vectors(vector1, vector2, threshold=0.6):
+    """Compare two vectors using cosine similarity."""
+    scalar_product = np.dot(vector1, vector2)
+    norm_vector1 = np.linalg.norm(vector1)
+    norm_vector2 = np.linalg.norm(vector2)
+    similarity = scalar_product / (norm_vector1 * norm_vector2)
+    
+    return similarity >= threshold
+
+    
 def base64_encoder(vector):
     # Convert the face vector to bytes
     face_vector_bytes = vector.tobytes()

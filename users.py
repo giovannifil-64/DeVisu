@@ -92,3 +92,13 @@ def delete(userId):
     conn.close()
     
     return make_response(f"User with id {userId} successfully deleted", 200)
+
+def read_by_otp(otp):
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE otp = ?', (otp,)).fetchone()
+    conn.close()
+
+    if user is None:
+        abort(404, f"User with OTP {otp} not found")
+
+    return dict(user)
