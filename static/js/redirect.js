@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 function redirectAfterDelay(time, page) {
     setTimeout(function() {
         window.location.href = "/" + page;

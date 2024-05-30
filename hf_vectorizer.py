@@ -38,15 +38,15 @@ def get_face_vector(image_path):
         else:
             return face_vector[0]
 
-def compare_face_vectors(vector1, vector2, threshold=0.5): #0.6
-    # Calculate Euclidean distance between the vectors
-    euclidean_distance = np.linalg.norm(vector1 - vector2)
+# def compare_face_vectors(vector1, vector2, threshold=0.5): #0.6
+#     # Calculate Euclidean distance between the vectors
+#     euclidean_distance = np.linalg.norm(vector1 - vector2)
     
-    # Check if the distance is within the threshold
-    if euclidean_distance <= threshold:
-        return True
-    else:
-        return False
+#     # Check if the distance is within the threshold
+#     if euclidean_distance <= threshold:
+#         return True
+#     else:
+#         return False
     
 def compare_vectors(vector1, vector2, threshold=0.6):
     """Compare two vectors using cosine similarity."""
@@ -56,7 +56,6 @@ def compare_vectors(vector1, vector2, threshold=0.6):
     similarity = scalar_product / (norm_vector1 * norm_vector2)
     
     return similarity >= threshold
-
     
 def base64_encoder(vector):
     # Convert the face vector to bytes

@@ -17,17 +17,19 @@
 """
 
 import connexion
-import cv2
+# import cv2
 import hf_vectorizer
+# import numpy as np
 import os
 import requests
+# import cameraUtils
 
-from camera import VideoCamera
+from cameraUtils import *
 from database import setup_database
 from flask import render_template, Response, request, redirect, url_for, jsonify
 from hf_vectorizer import base64_encoder, base64_decoder, compare_vectors
 from users import read_all, create, read_one, update, delete
-from utils import generate_otp
+from toolbox import generate_otp
 
 BASE_URL = 'http://localhost:5000/api/users'
 
@@ -39,11 +41,11 @@ flask_app.config['DEBUG'] = True
 
 camera = None
 capture_status = {"status": "not_captured"}
+captured_image_path = PathStorage()
 
 g_name = ""
 g_otp = ""
 g_vector = ""
-
 g_obtained_vector = ""
 
 def set_global_name(name):
@@ -69,30 +71,7 @@ def reset_globals():
     set_global_vector("")
     set_global_obtained_vector("")
 
-"""
-Directory structure:
-
-DeVisu
-├── templates/
-│   ├── home.html (Main page)
-
-│   ├── add_name.html (Ask for the name of the person to add)
-│   ├── add_person.html (capture the image of the person)
-│   ├── face_check.html (generate the face vector and OTP and store it in the database)
-│   └── add_result.html (display the result of the face vectorization)
-│
-│   ├── verify_otp.html (Ask for the OTP of the person to verify)
-│   ├── verify_capture.html (Capture the image of the person to verify)
-│   ├── verify_check.html (Compare the face vector with the one on the database corresponding to the OTP)
-│   └── verify_result.html (Display the result of the face comparison)
-│
-│   ├── remove_person.html (Ask for the OTP to remove the person from the database, and check if the person exists given the OTP)
-│   ├── remove_capture.html (Capture the image of the person to remove)
-│   └── remove_result.html (Display the result of the removal)
-
-"""
-
-# main page
+# Main page
 @app.route("/")
 def home():
     camera_status = initialize_camera()
@@ -122,28 +101,46 @@ def add_person():
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
+
+    while True:
+        frame_status = camera.get_frame()
+        if frame_status == "captured":
+            break
+
+    # print the image path
+    print(f"\033[1mADD_PERSON image path: {camera.get_captured_path()}\033[0m")
     return render_template('add_person.html', step=2, username=g_name)
 
 # Step 3: Generate the face vector and OTP and store it in the database.
 @app.route('/add_vectorization')
 def add_vectorization():
     global g_otp, g_vector
-    
-    release_camera()
-    if VideoCamera.g_img_path is None:
+
+    # Initialize the camera
+    camera_status = initialize_camera()
+    if camera_status.startswith("Error"):
+        return camera_status
+
+    print(f"ADD_VECTORIZATION image path: {camera.get_captured_path()}")
+
+    img_path = camera.get_captured_path()
+    if img_path is None or img_path == "":
         return "Image path is not available. Please capture an image first."
 
-    img_path = VideoCamera.g_img_path
-    img = cv2.imread(img_path)
-    if img is None:
-        return f"Failed to read image at path: {img_path}"
+    # img = cv2.imread(img_path)
+    # if img is None:
+    #     return f"Failed to read image at path: {img_path}"
 
     str_img_path = str(img_path)
     set_global_vector(hf_vectorizer.get_face_vector(str_img_path))
     set_global_otp(generate_otp())
-    
+
     os.remove(str_img_path)
-    
+    #empty the image path
+    camera.set_captured_path("")
+    print(f"ADD_VECTORIZATION image path after deletion: {camera.get_captured_path()}")
+    release_camera()  # Release the camera after processing the image
+
     return render_template('add_vectorization.html', step=3)
 
 # Step 4: Show the result and the OTP to the user.
@@ -173,9 +170,6 @@ def add_result():
     
     reset_globals()
     print(f"Globals reset: {g_name}, {g_otp}, {g_vector}, {g_obtained_vector}")
-    # print(f"video_path BEFORE={VideoCamera.g_img_path}")
-    # VideoCamera.set_global_path("")
-    # print(f"video_path AFTER={VideoCamera.g_img_path}")    
     return render_template('add_result.html', step=4, username=temp_name, otp=temp_otp)
 
 ### Verify a person in the database ###
@@ -184,7 +178,7 @@ def add_result():
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
     if request.method == 'GET':
-        return render_template('verify_otp.html')
+        return render_template('verify_otp.html', step=1)
     else:
         otp = request.form['otp']
         user = get_user_by_otp(otp)
@@ -192,10 +186,10 @@ def verify_otp():
         if user:
             # print(f"User vector: {user['vector']}")
             set_global_obtained_vector(base64_decoder(user['vector']))
-            return render_template('verify_capture.html', user=user)
+            return render_template('verify_capture.html', user=user, step=1)
         else:
             error = f"User with OTP {otp} not found"
-            return render_template('verify_result.html', error=error)
+            return render_template('verify_result.html', error=error, step=3)
         
 # Step 2: Capture the image of the person to verify
 @app.route('/verify_capture')
@@ -203,38 +197,56 @@ def verify_capture():
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
-    print(f"Camera status: {camera_status}")
-    return render_template('verify_capture.html')
+
+    while True:
+        frame_status = camera.get_frame()
+        if frame_status == "captured":
+            break
+    return render_template('verify_capture.html', step=2)
 
 # Step 3: Compare the face vector with the one on the database corresponding to the OTP
 @app.route('/verify_check')
 def verify_check():
-    global g_obtained_vector, g_vector
-    release_camera()
-    if VideoCamera.g_img_path is None:
-        return render_template('verify_result.html', error="Image path is not available. Please capture an image first.")
+    global g_obtained_vector
 
-    img_path = VideoCamera.g_img_path
-    img = cv2.imread(img_path)
-    print(f"Image path: {img_path}")
-    if img is None:
-        print(f"app.verify_check: Failed to read image at path: {img_path}")
-        return render_template('verify_result.html', error=f"Failed to read image at path: {img_path}")
+    # Initialize the camera
+    # camera_status = initialize_camera()
+    # if camera_status.startswith("Error"):
+    #     return camera_status
+
+    if g_obtained_vector is None:
+        return "No face detected during verification"
+
+    img_path = camera.get_captured_path()
+    print(f"VERIFY_CHECK image path: {img_path}")
+    if img_path is None or img_path == "":
+        return render_template('verify_result.html', error="Image path is not available. Please capture an image first.", step=3)
+
+    # img = cv2.imread(img_path)
+    # print(f"Image path: {img_path}")
+    # if img is None:
+    #     print(f"app.verify_check: Failed to read image at path: {img_path}")
+    #     return render_template('verify_result.html', error=f"Failed to read image at path: {img_path}", step=3)
 
     str_img_path = str(img_path)
-    set_global_vector(hf_vectorizer.get_face_vector(str_img_path))
+    generated_vector = hf_vectorizer.get_face_vector(str_img_path)
 
-    if compare_vectors(g_obtained_vector, g_vector):
+    #ptint the vectors in bold
+    print(f"\033[1mVector from DB: {g_obtained_vector}\033[0m")
+    print(f"\033[1mVector from image: {generated_vector}\033[0m")
+
+    if compare_vectors(g_obtained_vector, generated_vector):
         print("Verification successful!")
         result = "Verification successful!"
     else:
         print("Verification failed.")
         result = "Verification failed."
-        
-    
-    os.remove(str_img_path)
 
-    return render_template('verify_result.html', result=result)
+    os.remove(str_img_path)
+    #release_camera()
+
+    return render_template('verify_result.html', result=result, step=3)
+
 
 ### Remove a person from the database ###
 
@@ -242,9 +254,11 @@ def verify_check():
 
 # Step 2: Capture the image of the person to remove
 
+# Step 3: Compare the face vector with the one on the database corresponding to the OTP. If the vectors match, remove the person from the database, else show an error message.
 
 
-# Utils
+
+# utils routes
 @app.route('/video_feed')
 def video_feed():
     initialize_camera()
@@ -267,6 +281,14 @@ def get_user_by_otp(otp):
     else:
         return jsonify({'error': 'User not found'}), 404
 
+# Utils functions
+def release_camera():
+    global camera
+    if camera is not None:
+        camera.camera.release()  # Release the camera resource
+        del camera  # Delete the camera object
+    camera = None  # Set the camera object to None
+
 def initialize_camera():
     global camera
     if camera is None:
@@ -274,12 +296,6 @@ def initialize_camera():
         if camera.camera_status == "Error":
             return "(app.initialize_camera)Error: Failed to open the camera."
     return "(app.initialize_camera)Camera initialized successfully."
-
-def release_camera():
-    global camera
-    if camera is not None:
-        camera.__del__()
-        camera = None
 
 def generate(camera):
     while True:
@@ -310,7 +326,7 @@ def get_user_by_otp(otp):
 # Initialize the database
 setup_database()
 
-# Define the routes
+# Define API routes
 app.add_url_rule('/users', 'read_all', read_all, methods=['GET'])
 app.add_url_rule('/users', 'create', create, methods=['POST'])
 app.add_url_rule('/users/<int:userId>', 'read_one', read_one, methods=['GET'])
@@ -319,5 +335,3 @@ app.add_url_rule('/users/<int:userId>', 'delete', delete, methods=['DELETE'])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-    
-### STOP CODE BEFORE REFACTorig ###
