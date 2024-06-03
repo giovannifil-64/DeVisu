@@ -39,24 +39,21 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    /* margin: 0; */
-    background-color: #fff;
-    /* position: relative; */
-    /* background-color: aquamarine; */
+    background-color: white;
 }
 
 button {
     padding: 10px 20px;
     border: none;
     border-radius: var(--border-radius);
-    background-color: #0B3EE3;
+    background-color: var(--blue-color);
     color: white;
     font-size: 1rem;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #052692;
+    background-color: var(--secondary-blue-color);
 }
 
 form {
@@ -82,11 +79,11 @@ form {
     width: 40px;
     height: 15px;
     border-radius: var(--border-radius);
-    background-color: #f3f3f3;
+    background-color: #f0f0f0;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1rem;
+    /* font-size: 1rem; */
 }
 
 .step.current {
@@ -111,8 +108,8 @@ form {
 
 .logo {
     width: auto;
-    height: 6em; /* Adjust the height as needed */
-    margin: 1em 0; /* Add margin to create space around the image */
+    height: 6em;
+    margin: 1em 0;
 }
 
 .content a {
@@ -130,7 +127,7 @@ form {
 }
 
 .content a:hover {
-    background-color: #052692;
+    background-color: var(--secondary-blue-color);
 }
 
 
@@ -177,12 +174,3 @@ form {
     margin-top: -.25em;
     margin-bottom: 2em;
 }
-
-/* .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-} */

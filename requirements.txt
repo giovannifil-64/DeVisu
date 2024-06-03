@@ -1,0 +1,9 @@
+connexion
+face-recognition
+Flask
+numpy
+opencv-python
+requests
+SQLAlchemy
+swagger_ui_bundle
+uvicorn

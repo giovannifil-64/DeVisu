@@ -29,9 +29,17 @@
 
 <body>
     <div class="step-bar">
-        <div class="step {% if step >= 1 %}current{% endif %}"></div>
-        <div class="step {% if step >= 2 %}current{% endif %}"></div>
-        <div class="step {% if step >= 3 %}current{% endif %}"></div>
+        {% if operation == 'add' %}
+            <div class="step {% if step >= 1 %}current{% endif %}"></div>
+            <div class="step {% if step >= 2 %}current{% endif %}"></div>
+            <div class="step {% if step >= 3 %}current{% endif %}"></div>
+            <div class="step {% if step >= 4 %}current{% endif %}"></div>
+            
+        {% else %}
+            <div class="step {% if step >= 1 %}current{% endif %}"></div>
+            <div class="step {% if step >= 2 %}current{% endif %}"></div>
+            <div class="step {% if step >= 3 %}current{% endif %}"></div>
+        {% endif %}
     </div>
     <div class="content">
         {% if result %}
@@ -43,7 +51,7 @@
                     <h2>{{ result }}</h2>
                     {% if result == 'Person added correctly!' %}
                         <img src="{{ url_for('static', filename='img/person_done.svg') }}" alt="Verified" class="logo">
-                        <p>The person {{ username }} has been added correctly.</p>
+                        <p>(NEW RESULT PAGE)The person {{ username }} has been added correctly.</p>
                         <p>Write down the OTP: <strong>{{ otp }}</strong>, this will be needed to verify or remove the person.</p>
                     {% else %}
                         <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Not Verified" class="logo">

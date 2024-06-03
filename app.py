@@ -71,7 +71,8 @@ def reset_globals():
 # Main page
 @app.route("/")
 def home():
-    camera_status = initialize_camera()
+    camera.get_captured_path().cache_clear()
+    # camera_status = initialize_camera()
     # if camera_status.startswith("Error"):
     #     print(f"(app.index)Error: {camera_status}")
     #     return camera_status
@@ -82,6 +83,7 @@ def home():
 # Step 1: Ask for the name of the person to add
 @app.route('/add_name', methods=['GET'])
 def add_name_get():
+    camera.get_captured_path().cache_clear()
     return render_template('add_name.html', step=1)
 
 # Handle the form submission
@@ -106,8 +108,6 @@ def add_person():
 
     return render_template('add_person.html', step=2, username=g_name)
 
-#AAAAAA
-
 # Step 3: Generate the face vector and OTP and store it in the database.
 @app.route('/add_vectorization')
 def add_vectorization():
@@ -122,25 +122,15 @@ def add_vectorization():
     if img_path is None or img_path == "":
         return "Image path is not available. Please capture an image first."
 
-    # img = cv2.imread(img_path)
-    # if img is None:
-    #     return f"Failed to read image at path: {img_path}"
-
     str_img_path = str(img_path)
     vectorizer = hf_vectorizer.get_face_vector(str_img_path)
     if vectorizer is None:
         return "Failed to generate face vector from the captured image."
     
     set_global_vector(vectorizer)
-    print(f"ADD_VECTORIZATION global vector: {g_vector}")
-
-    # set_global_vector(hf_vectorizer.get_face_vector(str_img_path))
-
     set_global_otp(generate_otp())
+    print(f"Generated OTP: {g_otp}")
 
-    # os.remove(str_img_path)
-    # camera.set_captured_path("")
-    # print(f"ADD_VECTORIZATION image path after deletion: {camera.get_captured_path()}")
     os.remove(str_img_path)
     return render_template('add_vectorization.html', step=3)
 
@@ -162,19 +152,25 @@ def add_result():
         print('User created successfully!')
         created_user = response.json()
         print(f'User ID: {created_user["id"]}')
+        result = "Person added correctly!"
+        tmp_user, tmp_otp = g_name, g_otp
+
+        release_camera()
+        reset_globals()
+        return render_template('result.html', step=4, operation='add', result=result, username=tmp_user, otp=tmp_otp)
     else:
         print(f'Error creating user: {response.text}')
-        
-    temp_name, temp_otp = g_name, g_otp
-    reset_globals()
-    release_camera()
-    return render_template('add_result.html', step=4, username=temp_name, otp=temp_otp)
+        error = "Error creating user"
+        release_camera()
+        reset_globals()
+        return render_template('result.html', step=4, operation='add', error=error)
 
 ### Verify a person in the database ###
 
 # Step 1: Ask for the OTP of the person to verify
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
+    camera.get_captured_path().cache_clear()
     if request.method == 'GET':
         return render_template('verify_otp.html', step=1)
     else:
@@ -191,6 +187,7 @@ def verify_otp():
 # Step 2: Capture the image of the person to verify
 @app.route('/verify_capture')
 def verify_capture():
+    camera.get_captured_path().cache_clear()
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
@@ -235,6 +232,7 @@ def verify_check():
 # Step 1: Ask for the OTP of the person to delete
 @app.route('/delete_otp', methods=['GET', 'POST'])
 def delete_otp():
+    camera.get_captured_path().cache_clear()
     if request.method == 'GET':
         return render_template('delete_otp.html', step=1)  # Return the template for GET request
     else:
@@ -335,11 +333,12 @@ def generate(camera):
     while True:
         try:
             frame = camera.get_frame()
-            if frame == "captured":
+            if frame is None:
+                print("Error: Failed to read frame from camera.")
+                continue
+            elif frame == "captured":
                 capture_status["status"] = "captured"
                 break
-            if frame is None:
-                continue
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         except Exception as e:
@@ -386,7 +385,3 @@ app.add_url_rule('/users/<int:userId>', 'delete', delete, methods=['DELETE'])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-#AAAAAAAAA
-# LOREM IPSUMM DOLOR
-# SIT ALET
