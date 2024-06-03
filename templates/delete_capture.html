@@ -1,5 +1,5 @@
 <!-- 
-* home.html
+* delete_capture.html
 * 
 * Copyright 2024, Filippini Giovanni
 * 
@@ -22,34 +22,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeVisu - Welcome</title>
+    <title>DeVisu - Delete Capture</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+    <script>
+        const redirectUrl = '/delete_check';
+        startCheckingCaptureStatus(redirectUrl);
+    </script>
 </head>
 
 <body>
-    <div id="first-step">
-        <h1>Welcome to</h1>
-        <img src="static/img/DeVisu.svg" alt="DeVisu logo" class="home_logo">
-
-        <!-- <p>DeVisu is a facial recognition system that allows you to add, verify and remove people from a database.</p> -->
-
-        <a href="/add_name">
-            <button class="distance-button">
-                <span class="large-text">Add a new person.</span>
-            </button>
-        </a>
-
-        <a href="{{ url_for('verify_otp') }}">
-            <button class="distance-button">
-                <span class="large-text">Verify a person.</span>
-            </button>
-        </a>
-
-        <a href="/delete_otp">
-            <button class="distance-button">
-                <span class="large-text">Remove a person.</span>
-            </button>
-        </a>
+    <div class="step-bar">
+        <div class="step {% if step >= 1 %}current{% endif %}"></div>
+        <div class="step {% if step >= 2 %}current{% endif %}"></div>
+        <div class="step {% if step >= 3 %}current{% endif %}"></div>
+    </div>
+    <div class="content">
+        <h3>Look at the camera and wait a few seconds.</h3>
+        <img id="video-feed" class="video-container" src="{{ url_for('video_feed') }}" alt="Video Feed">
     </div>
 </body>
 

@@ -34,12 +34,12 @@
         <div class="step {% if step >= 4 %}current{% endif %}"></div>
     </div>
 
-    <div class="container">
-        <h2>Enter Your Name</h2>
+    <div class="content">
+        <h2>Add a new person</h2>
+        <img src="{{ url_for('static', filename='img/person_add.svg') }}"alt="Verified" class="logo">
+        <p>Write your name below:</p>
         <form method="POST" action="/add_name">
             <input type="text" name="username" placeholder="Your Name" required>
-            <br>
-            <!-- <input type="submit" value="Submit"> -->
             <br>
             <button type="submit">Submit</button>
         </form>

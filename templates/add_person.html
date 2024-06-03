@@ -24,35 +24,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeVisu - Add a new person</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
     <script>
-        window.addEventListener('unload', function () {
-            fetch('/release_camera')
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Camera released successfully');
-                    } else {
-                        console.error('Failed to release camera');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error releasing camera:', error);
-                });
-        });
-
-        function checkCaptureStatus() {
-            fetch('/check_capture_status')
-                .then(response => response.text())
-                .then(status => {
-                    if (status === 'captured') {
-                        window.location.href = '/add_vectorization';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking capture status:', error);
-                });
-        }
-
-        setInterval(checkCaptureStatus, 500);
+        const redirectUrl = '/add_vectorization';
+        startCheckingCaptureStatus(redirectUrl);
     </script>
 </head>
 

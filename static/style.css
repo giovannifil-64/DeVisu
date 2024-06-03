@@ -32,19 +32,41 @@
     font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
 }
 
-
 body {
-    max-width: 1240px;
+    max-width: 1024px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
+    /* margin: 0; */
     background-color: #fff;
-    position: relative;
+    /* position: relative; */
     /* background-color: aquamarine; */
 }
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: #0B3EE3;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #052692;
+}
+
+form {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 
 .step-bar {
     display: flex;
@@ -76,34 +98,47 @@ body {
 }
 
 .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    /*place the content in the center of the page*/
     position: absolute;
-    top: 50%;
+    top: 25%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -25%);
 }
+
+.logo {
+    width: auto;
+    height: 6em; /* Adjust the height as needed */
+    margin: 1em 0; /* Add margin to create space around the image */
+}
+
+.content a {
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--blue-color);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 1em;
+    display: inline-block;
+    text-align: center;
+}
+
+.content a:hover {
+    background-color: #052692;
+}
+
 
 #first-step {
     text-align: center;
     position: absolute;
     left: 50%;
     transform: translate(-50%, -25%);
-}
-
-
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: var(--border-radius);
-    background-color: #0B3EE3;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #052692;
 }
 
 .video-container {
@@ -114,78 +149,40 @@ button:hover {
     height: auto;
 }
 
-.image-container {
-    width: 600px;
-    height: auto;
-    /*fix image on the botto of the page*/
-    position: absolute;
-    bottom: 0;
-}
-
-/* Styling for the distance button */
 .distance-button {
     background-color: var(--blue-color);
-    margin-top: 1em;
-    width: 25em;
-    height: auto;
     border-radius: var(--border-radius);
+    margin: 1em;
+    width: 21em;
     border: none;
     color: white;
     text-align: center;
     display: flex;
     flex-direction: column;
-    /* Arrange items vertically */
     align-items: center;
-    /* Center items horizontally */
     text-decoration: none;
-    font-size: 16px;
     position: relative;
-    padding: 1.25em 4em;
-    /* Adjust padding as needed */
-    font-weight: semibold;
+    padding: 1.25em;
 }
 
 .large-text {
-    font-size: 20pt;
-    font-weight: bold;
+    font-size: 18pt;
+    font-weight: 500;
     margin-bottom: 0.15em;
-    /* Add some space between the lines */
 }
 
-.small-text {
-    font-size: 12pt;
-    font-style: italic;
-}
-
-.distance-button img {
-    width: 38px;
-    height: 38px;
-    /* Specify the unit for height */
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.logo {
+.home_logo {
     width: auto;
-    height: 5em;
+    height: 4em;
     margin-top: -.25em;
     margin-bottom: 2em;
 }
 
-#start-button {
-    margin-top: 3em;
-    font-size: 16pt;
-    /* Adjusted margin-top value */
-}
-
-#start-container {
-    margin-top: -5em;
-}
-
-.image-size {
-    width: 10em;
-    position: absolute;
-    top: 3.75em;
-}
+/* .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+} */

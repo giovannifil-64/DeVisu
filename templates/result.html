@@ -1,0 +1,75 @@
+<!-- 
+* result.html
+* 
+* Copyright 2024, Filippini Giovanni
+* 
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*         https://www.apache.org/licenses/LICENSE-2.0.txt
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+
+<!-- result.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeVisu - Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="step-bar">
+        <div class="step {% if step >= 1 %}current{% endif %}"></div>
+        <div class="step {% if step >= 2 %}current{% endif %}"></div>
+        <div class="step {% if step >= 3 %}current{% endif %}"></div>
+    </div>
+    <div class="content">
+        {% if result %}
+            {% if operation == 'add' %}
+                {% if error %}
+                    <h2>{{ error }}</h2>
+                    <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Error" class="logo">
+                {% else %}
+                    <h2>{{ result }}</h2>
+                    {% if result == 'Person added correctly!' %}
+                        <img src="{{ url_for('static', filename='img/person_done.svg') }}" alt="Verified" class="logo">
+                        <p>The person {{ username }} has been added correctly.</p>
+                        <p>Write down the OTP: <strong>{{ otp }}</strong>, this will be needed to verify or remove the person.</p>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Not Verified" class="logo">
+                    {% endif %}
+                {% endif %}
+            {% elif operation == 'verify' %}
+                <h2>{{ result }}</h2>
+                {% if result == 'Verification successful!' %}
+                    <img src="{{ url_for('static', filename='img/person_match.svg') }}" alt="Verified" class="logo">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Not Verified" class="logo">
+                {% endif %}
+            {% elif operation == 'delete' %}
+                <h2>{{ result }}</h2>
+                {% if result == 'Deletion successful!' %}
+                    <img src="{{ url_for('static', filename='img/person_done.svg') }}" alt="User Deleted" class="logo">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Deletion Failed" class="logo">
+                {% endif %}
+            {% endif %}
+        {% elif error %}
+            <h2>{{ error }}</h2>
+            <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Error" class="logo">
+        {% endif %}
+        <a href="{{ url_for('home') }}">Go Home</a>
+    </div>
+</body>
+
+</html>

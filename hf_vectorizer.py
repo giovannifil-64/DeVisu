@@ -22,21 +22,31 @@ import face_recognition
 import numpy as np
 
 def get_face_vector(image_path):
-    image = cv2.imread(image_path)
-    face_locations = face_recognition.face_locations(image)
+    try:
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Failed to read image from path: {image_path}")
+            return None
 
-    if len(face_locations) == 0:
-        return None
-    else:
+        face_locations = face_recognition.face_locations(image)
+        if len(face_locations) == 0:
+            print("No faces detected in the image.")
+            return None
+
         top, right, bottom, left = face_locations[0]
         face_image = image[top:bottom, left:right]
         face_image_resized = cv2.resize(face_image, (512, 512))
-        face_vector = face_recognition.face_encodings(image)
+        face_vector = face_recognition.face_encodings(face_image_resized)
 
         if len(face_vector) == 0:
+            print("Failed to generate face vector from the detected face.")
             return None
-        else:
-            return face_vector[0]
+
+        return face_vector[0]
+
+    except Exception as e:
+        print(f"Error occurred during face vector generation: {e}")
+        return None
 
 # def compare_face_vectors(vector1, vector2, threshold=0.5): #0.6
 #     # Calculate Euclidean distance between the vectors
@@ -50,6 +60,9 @@ def get_face_vector(image_path):
     
 def compare_vectors(vector1, vector2, threshold=0.6):
     """Compare two vectors using cosine similarity."""
+    if vector1 is None or vector2 is None:
+        return False
+    
     scalar_product = np.dot(vector1, vector2)
     norm_vector1 = np.linalg.norm(vector1)
     norm_vector2 = np.linalg.norm(vector2)

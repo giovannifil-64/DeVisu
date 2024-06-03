@@ -20,7 +20,7 @@
 <html>
 
 <head>
-    <title>DeVisu - Enter OTP</title>
+    <title>DeVisu - Verify a person</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
@@ -33,10 +33,13 @@
     </div>
 
     <div class="content">
-        <h1>Verify OTP</h1>
+        <h2>Verify a person</h2>
+        <img src="{{ url_for('static', filename='img/person_match.svg') }}"alt="Verified" class="logo">
+        <p>Enter the OTP given during setup.</p>
         <form action="{{ url_for('verify_otp') }}" method="post">
-            <label for="otp">Enter OTP:</label>
+            <!-- <label for="otp">Enter OTP:</label> -->
             <input type="text" id="otp" name="otp" required>
+            <br>
             <button type="submit">Submit</button>
         </form>
     </div>

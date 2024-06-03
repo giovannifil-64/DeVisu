@@ -1,5 +1,5 @@
 /*
- * users.py
+ * redirect.js
  * 
  * Copyright 2024, Filippini Giovanni
  * 

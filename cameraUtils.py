@@ -67,21 +67,23 @@ class VideoCamera:
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray_frame, scaleFactor=1.15, minNeighbors=5, minSize=(30, 30))
 
-        if len(faces) > 0:
+        if len(faces) == 1:
             # time.sleep(2)  # Wait for 2 seconds before capturing the image
             # self.capture_image(frame, faces[0])
             # print(f"CAPTURE_IMAGE FROM FUNCTION: {self.captured_image_path.path}")
             # return "captured"
             if self.face_detected_time is None:
-                self.face_detected_time = time.time()  # Record the time when the face is first detected
-            elif time.time() - self.face_detected_time >= 2:  # Check if 2 seconds have passed
-                self.capture_image(frame, faces[0])  # Pass the coordinates of the first detected face
-                self.face_detected_time = None  # Reset the time after capturing the image
+                self.face_detected_time = time.time()
+            elif time.time() - self.face_detected_time >= 3:
+                self.capture_image(frame, faces[0])
+                self.face_detected_time = None
                 print(f"CAPTURE_IMAGE FROM FUNCTION: {self.captured_image_path.path}")
                 return "captured"
+        elif len(faces) > 1 or len(faces) == 0:
+            self.face_detected_time = None
         else:
             print("No face detected.")
-            # self.face_detected_time = None  # Reset the time if no face is detected
+            self.face_detected_time = None  # Reset the time if no face is detected
 
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -124,6 +126,3 @@ class VideoCamera:
     def set_captured_path(self, new_path):
         """Set the path of the captured image."""
         self.captured_image_path.path = new_path
-
-
-###PASTING SAFER VERSION OF THE CODE### A A A A

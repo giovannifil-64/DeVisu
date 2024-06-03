@@ -24,24 +24,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeVisu - Person added</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        body {
-            background-color: #6BE17B;
-        }
-
-        h2 {
-            color: #0a0a0a;
-        }
-    </style>
-
-    <script src="{{ url_for('static', filename='js/redirect.js') }}"></script>
-    <script>
-        // Go back to root page after 2.5 seconds
-        // window.onload = function () {
-        //     redirectAfterDelay(2750, "");
-        // };
-    </script>
-
 </head>
 
 <body>
@@ -52,10 +34,11 @@
         <div class="step {% if step >= 4 %}current{% endif %}"></div>
     </div>
     <div class="content">
-        <h2><b>Person added correctly!</b></h2>
-        <p>username: {{ username }}</p>
-        <p>Your OTP is: {{ otp }}</p>
-        <a href="/"><button>Done</button></a>
+        <h2>Person added correctly!</h2>
+        <img src="{{ url_for('static', filename='img/person_done.svg') }}" alt="Verified" class="logo">
+        <p>The person {{ username }} has been added correctly.</p>
+        <p>Write down the OTP: <strong>{{ otp }}</strong>, this will be needed to verify or remove the person.</p>
+        <a href="{{ url_for('home') }}">Go Home</a>
     </div>
 </body>
 
