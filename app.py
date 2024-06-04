@@ -129,7 +129,7 @@ def add_vectorization():
     set_global_otp(generate_otp())
     print(f"Generated OTP: {g_otp}")
 
-    os.remove(str_img_path)
+    delete_all_images()
     return render_template('add_vectorization.html', step=3)
 
 # Step 4: Show the result and the OTP to the user.
@@ -219,7 +219,7 @@ def verify_check():
 
     result = "Verification successful!"
 
-    os.remove(str(img_path))
+    delete_all_images()
     return render_template('result.html', result=result, step=3, operation='verify')
 
 
@@ -280,7 +280,7 @@ def delete_check():
     delete_user_by_otp(g_otp)
     result = "Deletion successful!"
 
-    os.remove(str(img_path))
+    delete_all_images()
     return render_template('result.html', result=result, step=3, operation='delete')
 
 
@@ -339,6 +339,11 @@ def generate(camera):
         except Exception as e:
             print(f"Error generating frame: {e}")
             break
+
+def delete_all_images():
+    for file in os.listdir("*/DeVisu/"):
+        if file.endswith('.jpg'):
+            os.remove(file)
         
 def get_user_by_otp(otp):
     url = f"{BASE_URL}/by_otp/{otp}"

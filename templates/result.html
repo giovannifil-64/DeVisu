@@ -51,7 +51,7 @@
                     <h2>{{ result }}</h2>
                     {% if result == 'Person added correctly!' %}
                         <img src="{{ url_for('static', filename='img/person_done.svg') }}" alt="Verified" class="logo">
-                        <p>(NEW RESULT PAGE)The person {{ username }} has been added correctly.</p>
+                        <p>The person {{ username }} has been added correctly.</p>
                         <p>Write down the OTP: <strong>{{ otp }}</strong>, this will be needed to verify or remove the person.</p>
                     {% else %}
                         <img src="{{ url_for('static', filename='img/person_error.svg') }}" alt="Not Verified" class="logo">
