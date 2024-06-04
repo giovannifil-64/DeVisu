@@ -71,7 +71,6 @@ def reset_globals():
 # Main page
 @app.route("/")
 def home():
-    camera.get_captured_path().cache_clear()
     # camera_status = initialize_camera()
     # if camera_status.startswith("Error"):
     #     print(f"(app.index)Error: {camera_status}")
@@ -83,7 +82,6 @@ def home():
 # Step 1: Ask for the name of the person to add
 @app.route('/add_name', methods=['GET'])
 def add_name_get():
-    camera.get_captured_path().cache_clear()
     return render_template('add_name.html', step=1)
 
 # Handle the form submission
@@ -170,7 +168,6 @@ def add_result():
 # Step 1: Ask for the OTP of the person to verify
 @app.route('/verify_otp', methods=['GET', 'POST'])
 def verify_otp():
-    camera.get_captured_path().cache_clear()
     if request.method == 'GET':
         return render_template('verify_otp.html', step=1)
     else:
@@ -187,7 +184,6 @@ def verify_otp():
 # Step 2: Capture the image of the person to verify
 @app.route('/verify_capture')
 def verify_capture():
-    camera.get_captured_path().cache_clear()
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
@@ -232,7 +228,6 @@ def verify_check():
 # Step 1: Ask for the OTP of the person to delete
 @app.route('/delete_otp', methods=['GET', 'POST'])
 def delete_otp():
-    camera.get_captured_path().cache_clear()
     if request.method == 'GET':
         return render_template('delete_otp.html', step=1)  # Return the template for GET request
     else:
