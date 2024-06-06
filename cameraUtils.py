@@ -77,7 +77,7 @@ class VideoCamera:
             self.face_detected_time = None
         else:
             print("No face detected.")
-            self.face_detected_time = None  # Reset the time if no face is detected
+            self.face_detected_time = None
 
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -97,7 +97,7 @@ class VideoCamera:
         y2 = min(y + h + padding, frame.shape[0])
 
         face_img = frame[y1:y2, x1:x2]
-        
+
         img_filename = "captured_image{}.jpg".format(time.strftime("%Y%m%d-%H%M%S"))
         cv2.imwrite(img_filename, face_img)
         path = os.path.abspath(img_filename)
@@ -111,9 +111,9 @@ class VideoCamera:
         self.captured_image_path.path = path
         print(f"CAPTURE_IMAGE FROM CLASS: {self.captured_image_path.path}")
         return path
-    
+
     def get_captured_path(self):
         return self.captured_image_path.path
-    
+
     def set_captured_path(self, new_path):
         self.captured_image_path.path = new_path

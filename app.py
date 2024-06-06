@@ -147,9 +147,9 @@ def add_result():
     response = requests.post(BASE_URL, json=new_user)
 
     if response.status_code == 201:
-        print("User created successfully!")
+        # print("User created successfully!")
         created_user = response.json()
-        print(f"User ID: {created_user["id"]}")
+        # print(f"User ID: {created_user['id']}")
         result = "Person added correctly!"
         tmp_user, tmp_otp = g_name, g_otp
 
@@ -185,6 +185,7 @@ def verify_otp():
 @app.route("/verify_capture")
 def verify_capture():
     camera_status = initialize_camera()
+    
     if camera_status.startswith("Error"):
         return camera_status
 
@@ -229,14 +230,14 @@ def verify_check():
 @app.route("/delete_otp", methods=["GET", "POST"])
 def delete_otp():
     if request.method == "GET":
-        return render_template("delete_otp.html", step=1)  # Return the template for GET request
+        return render_template("delete_otp.html", step=1)
     else:
         otp = request.form["otp"]
         user = get_user_by_otp(otp)
 
         if user:
             set_global_obtained_vector(base64_decoder(user["vector"]))
-            set_global_otp(otp)  # Store the OTP in a global variable
+            set_global_otp(otp)
             return render_template("delete_capture.html", user=user, step=1)
         else:
             error = f"User with OTP {otp} not found"
@@ -246,6 +247,7 @@ def delete_otp():
 @app.route("/delete_capture")
 def delete_capture():
     camera_status = initialize_camera()
+    
     if camera_status.startswith("Error"):
         return camera_status
 
@@ -303,6 +305,7 @@ def release_camera_route():
 @app.route("/users/by_otp/<string:otp>", methods=["GET"])
 def get_user_by_otp(otp):
     user = get_user_by_otp(otp)
+    
     if user:
         return user
     else:
@@ -311,6 +314,7 @@ def get_user_by_otp(otp):
 # Utils functions
 def release_camera():
     global camera
+    
     if camera is not None:
         camera.camera.release()  # Release the camera resource
         del camera  # Delete the camera object
@@ -318,6 +322,7 @@ def release_camera():
 
 def initialize_camera():
     global camera
+    
     if camera is None:
         camera = VideoCamera()
         if camera.camera_status == "Error":
