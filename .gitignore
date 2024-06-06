@@ -20,6 +20,6 @@ venv/
 # that are supposed to be shared within teams.
 .idea/*
 
-# User-specific stuff:
+# prevent images taken by the camera from being added to the repository:
 *.jpg
 *.jpeg

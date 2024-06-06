@@ -28,13 +28,13 @@ from hf_vectorizer import base64_encoder, base64_decoder, compare_vectors
 from users import read_all, create, read_one, update, delete
 from toolbox import generate_otp
 
-BASE_URL = 'http://localhost:5000/api/users'
+BASE_URL = "http://localhost:5000/api/users"
 
 app = connexion.App(__name__, specification_dir="./")
 app.add_api("swagger.yml")
 
 flask_app = app.app
-flask_app.config['DEBUG'] = True
+flask_app.config["DEBUG"] = True
 
 camera = None
 capture_status = {"status": "not_captured"}
@@ -80,20 +80,20 @@ def home():
 ### Add a new person to the database ###
 
 # Step 1: Ask for the name of the person to add
-@app.route('/add_name', methods=['GET'])
+@app.route("/add_name", methods=["GET"])
 def add_name_get():
-    return render_template('add_name.html', step=1)
+    return render_template("add_name.html", step=1)
 
 # Handle the form submission
-@app.route('/add_name', methods=['POST'])
+@app.route("/add_name", methods=["POST"])
 def add_name_post():    
-    username = request.form['username']
+    username = request.form["username"]
     print(f"(app.submit)Name: {username}")
     set_global_name(username)
     return redirect(url_for("add_person"))
 
 # Step 2: Capture the image of the person
-@app.route('/add_person')
+@app.route("/add_person")
 def add_person():
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
@@ -104,10 +104,10 @@ def add_person():
         if frame_status == "captured":
             break
 
-    return render_template('add_person.html', step=2, username=g_name)
+    return render_template("add_person.html", step=2, username=g_name)
 
 # Step 3: Generate the face vector and OTP and store it in the database.
-@app.route('/add_vectorization')
+@app.route("/add_vectorization")
 def add_vectorization():
     global g_otp, g_vector
 
@@ -130,59 +130,59 @@ def add_vectorization():
     print(f"Generated OTP: {g_otp}")
 
     delete_all_images()
-    return render_template('add_vectorization.html', step=3)
+    return render_template("add_vectorization.html", step=3)
 
 # Step 4: Show the result and the OTP to the user.
-@app.route('/add_result')
+@app.route("/add_result")
 def add_result():
     global g_name, g_otp, g_vector
 
     new_user = {
         "id": 0, # Placeholder value, will be ignored by the API
-        'name': g_name,
-        'otp': str(g_otp),
-        'vector': base64_encoder(g_vector)
+        "name": g_name,
+        "otp": str(g_otp),
+        "vector": base64_encoder(g_vector)
     }
 
     response = requests.post(BASE_URL, json=new_user)
 
     if response.status_code == 201:
-        print('User created successfully!')
+        print("User created successfully!")
         created_user = response.json()
-        print(f'User ID: {created_user["id"]}')
+        print(f"User ID: {created_user["id"]}")
         result = "Person added correctly!"
         tmp_user, tmp_otp = g_name, g_otp
 
         release_camera()
         reset_globals()
-        return render_template('result.html', step=4, operation='add', result=result, username=tmp_user, otp=tmp_otp)
+        return render_template("result.html", step=4, operation="add", result=result, username=tmp_user, otp=tmp_otp)
     else:
-        print(f'Error creating user: {response.text}')
+        print(f"Error creating user: {response.text}")
         error = "Error creating user"
         release_camera()
         reset_globals()
-        return render_template('result.html', step=4, operation='add', error=error)
+        return render_template("result.html", step=4, operation="add", error=error)
 
 ### Verify a person in the database ###
 
 # Step 1: Ask for the OTP of the person to verify
-@app.route('/verify_otp', methods=['GET', 'POST'])
+@app.route("/verify_otp", methods=["GET", "POST"])
 def verify_otp():
-    if request.method == 'GET':
-        return render_template('verify_otp.html', step=1)
+    if request.method == "GET":
+        return render_template("verify_otp.html", step=1)
     else:
-        otp = request.form['otp']
+        otp = request.form["otp"]
         user = get_user_by_otp(otp)
 
         if user:
-            set_global_obtained_vector(base64_decoder(user['vector']))
-            return render_template('verify_capture.html', user=user, step=1)
+            set_global_obtained_vector(base64_decoder(user["vector"]))
+            return render_template("verify_capture.html", user=user, step=1)
         else:
             error = f"User with OTP {otp} not found"
-            return render_template('result.html', error=error, step=3)
+            return render_template("result.html", error=error, step=3)
         
 # Step 2: Capture the image of the person to verify
-@app.route('/verify_capture')
+@app.route("/verify_capture")
 def verify_capture():
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
@@ -192,58 +192,58 @@ def verify_capture():
         frame_status = camera.get_frame()
         if frame_status == "captured":
             break
-    return render_template('verify_capture.html', step=2)
+    return render_template("verify_capture.html", step=2)
 
 # Step 3: Compare the face vector with the one on the database corresponding to the OTP
-@app.route('/verify_check')
+@app.route("/verify_check")
 def verify_check():
     global g_obtained_vector
 
     if g_obtained_vector is None:
-        return render_template('result.html', error="No face detected during verification.", step=3, operation='verify')
+        return render_template("result.html", error="No face detected during verification.", step=3, operation="verify")
 
     img_path = camera.get_captured_path()
     if img_path is None or img_path == "":
-        return render_template('result.html', error="Image path is not available. Please capture an image first.", step=3, operation='verify')
+        return render_template("result.html", error="Image path is not available. Please capture an image first.", step=3, operation="verify")
 
     str_img_path = str(img_path)
     generated_vector = hf_vectorizer.get_face_vector(str_img_path)
 
     if generated_vector is None:
-        return render_template('result.html', error="Failed to generate face vector from the captured image.", step=3, operation='verify')
+        return render_template("result.html", error="Failed to generate face vector from the captured image.", step=3, operation="verify")
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Verification failed.")
         result = "Verification failed."
-        return render_template('result.html', result=result, step=3, operation='verify')
+        return render_template("result.html", result=result, step=3, operation="verify")
 
     result = "Verification successful!"
 
     delete_all_images()
-    return render_template('result.html', result=result, step=3, operation='verify')
+    return render_template("result.html", result=result, step=3, operation="verify")
 
 
 ### Remove a person from the database ###
 
 # Step 1: Ask for the OTP of the person to delete
-@app.route('/delete_otp', methods=['GET', 'POST'])
+@app.route("/delete_otp", methods=["GET", "POST"])
 def delete_otp():
-    if request.method == 'GET':
-        return render_template('delete_otp.html', step=1)  # Return the template for GET request
+    if request.method == "GET":
+        return render_template("delete_otp.html", step=1)  # Return the template for GET request
     else:
-        otp = request.form['otp']
+        otp = request.form["otp"]
         user = get_user_by_otp(otp)
 
         if user:
-            set_global_obtained_vector(base64_decoder(user['vector']))
+            set_global_obtained_vector(base64_decoder(user["vector"]))
             set_global_otp(otp)  # Store the OTP in a global variable
-            return render_template('delete_capture.html', user=user, step=1)
+            return render_template("delete_capture.html", user=user, step=1)
         else:
             error = f"User with OTP {otp} not found"
-            return render_template('delete_result.html', error=error, step=3)
+            return render_template("delete_result.html", error=error, step=3)
 
 # Step 2: Capture the image of the person to delete
-@app.route('/delete_capture')
+@app.route("/delete_capture")
 def delete_capture():
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
@@ -253,60 +253,60 @@ def delete_capture():
         frame_status = camera.get_frame()
         if frame_status == "captured":
             break
-    return render_template('delete_capture.html', step=2)
+    return render_template("delete_capture.html", step=2)
 
 # Step 3: Compare the face vector and delete the user if vectors match
-@app.route('/delete_check')
+@app.route("/delete_check")
 def delete_check():
     global g_obtained_vector, g_otp
 
     if g_obtained_vector is None:
-        return render_template('result.html', error="No face detected during deletion.", step=3, )
+        return render_template("result.html", error="No face detected during deletion.", step=3, )
 
     img_path = camera.get_captured_path()
     if img_path is None or img_path == "":
-        return render_template('result.html', error="Image path is not available. Please capture an image first.", step=3, operation='delete')
+        return render_template("result.html", error="Image path is not available. Please capture an image first.", step=3, operation="delete")
 
     generated_vector = hf_vectorizer.get_face_vector(str(img_path))
 
     if generated_vector is None:
-        return render_template('result.html', error="Failed to generate face vector from the captured image.", step=3, operation='delete')
+        return render_template("result.html", error="Failed to generate face vector from the captured image.", step=3, operation="delete")
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Deletion failed.")
         result = "Deletion failed."
-        return render_template('result.html', result=result, step=3, operation='delete')
+        return render_template("result.html", result=result, step=3, operation="delete")
     
     delete_user_by_otp(g_otp)
     result = "Deletion successful!"
 
     delete_all_images()
-    return render_template('result.html', result=result, step=3, operation='delete')
+    return render_template("result.html", result=result, step=3, operation="delete")
 
 
 
 # utils routes
-@app.route('/video_feed')
+@app.route("/video_feed")
 def video_feed():
     initialize_camera()
-    return Response(generate(camera), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate(camera), mimetype="multipart/x-mixed-replace; boundary=frame")
 
-@app.route('/check_capture_status')
+@app.route("/check_capture_status")
 def check_capture_status():
     return capture_status["status"]
 
-@app.route('/release_camera')
+@app.route("/release_camera")
 def release_camera_route():
     release_camera()  # Call the function to release the camera
-    return 'Camera released'
+    return "Camera released"
 
-@app.route('/users/by_otp/<string:otp>', methods=['GET'])
+@app.route("/users/by_otp/<string:otp>", methods=["GET"])
 def get_user_by_otp(otp):
     user = get_user_by_otp(otp)
     if user:
         return user
     else:
-        return jsonify({'error': 'User not found'}), 404
+        return jsonify({"error": "User not found"}), 404
 
 # Utils functions
 def release_camera():
@@ -334,15 +334,15 @@ def generate(camera):
             elif frame == "captured":
                 capture_status["status"] = "captured"
                 break
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            yield (b"--frame\r\n"
+                   b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n\r\n")
         except Exception as e:
             print(f"Error generating frame: {e}")
             break
 
 def delete_all_images():
     for file in os.listdir("*/DeVisu/"):
-        if file.endswith('.jpg'):
+        if file.endswith(".jpg"):
             os.remove(file)
         
 def get_user_by_otp(otp):
@@ -362,7 +362,7 @@ def delete_user_by_otp(otp):
 
     if response.status_code == 200:
         user = response.json()
-        user_id = user['id']
+        user_id = user["id"]
         delete_url = f"{BASE_URL}/{user_id}"
         delete_response = requests.delete(delete_url)
 
@@ -377,11 +377,11 @@ def delete_user_by_otp(otp):
 setup_database()
 
 # Define API routes
-app.add_url_rule('/users', 'read_all', read_all, methods=['GET'])
-app.add_url_rule('/users', 'create', create, methods=['POST'])
-app.add_url_rule('/users/<int:userId>', 'read_one', read_one, methods=['GET'])
-app.add_url_rule('/users/<int:userId>', 'update', update, methods=['PUT'])
-app.add_url_rule('/users/<int:userId>', 'delete', delete, methods=['DELETE'])
+app.add_url_rule("/users", "read_all", read_all, methods=["GET"])
+app.add_url_rule("/users", "create", create, methods=["POST"])
+app.add_url_rule("/users/<int:userId>", "read_one", read_one, methods=["GET"])
+app.add_url_rule("/users/<int:userId>", "update", update, methods=["PUT"])
+app.add_url_rule("/users/<int:userId>", "delete", delete, methods=["DELETE"])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

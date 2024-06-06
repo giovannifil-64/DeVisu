@@ -53,5 +53,5 @@ def setup_database():
     else:
         print("Error! cannot create the database connection.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     setup_database()

@@ -22,6 +22,7 @@ import face_recognition
 import numpy as np
 
 def get_face_vector(image_path):
+
     try:
         image = cv2.imread(image_path)
         if image is None:
@@ -47,19 +48,8 @@ def get_face_vector(image_path):
     except Exception as e:
         print(f"Error occurred during face vector generation: {e}")
         return None
-
-# def compare_face_vectors(vector1, vector2, threshold=0.5): #0.6
-#     # Calculate Euclidean distance between the vectors
-#     euclidean_distance = np.linalg.norm(vector1 - vector2)
     
-#     # Check if the distance is within the threshold
-#     if euclidean_distance <= threshold:
-#         return True
-#     else:
-#         return False
-    
-def compare_vectors(vector1, vector2, threshold=0.6):
-    """Compare two vectors using cosine similarity."""
+def compare_vectors(vector1, vector2, threshold=0.45):
     if vector1 is None or vector2 is None:
         return False
     
@@ -71,16 +61,12 @@ def compare_vectors(vector1, vector2, threshold=0.6):
     return similarity >= threshold
     
 def base64_encoder(vector):
-    # Convert the face vector to bytes
     face_vector_bytes = vector.tobytes()
-    # Encode the byte representation as base64
-    face_vector_base64 = base64.b64encode(face_vector_bytes).decode('utf-8')
+    face_vector_base64 = base64.b64encode(face_vector_bytes).decode("utf-8")
     return face_vector_base64
 
 def base64_decoder(base64_string):
-    # Decode base64 string to bytes
     decoded_bytes = base64.b64decode(base64_string)
-    # Convert bytes to numpy array to get the original vector
     vector = np.frombuffer(decoded_bytes, dtype=np.float64)
     return vector
 

@@ -19,24 +19,24 @@
 import requests
 
 # Base URL for the API
-BASE_URL = 'http://localhost:5000/api/users'
+BASE_URL = "http://localhost:5000/api/users"
 
 """# Create a new user
 new_user = {
     "id": 0, # Placeholder value, will be ignored by the API
-    'name': 'John Doe',
-    'otp': '123456',
-    'vector': 'some_vector_data'
+    "name": "John Doe",
+    "otp": "123456",
+    "vector": "some_vector_data"
 }
 
 response = requests.post(BASE_URL, json=new_user)
 
 if response.status_code == 201:
-    print('User created successfully!')
+    print("User created successfully!")
     created_user = response.json()
-    print(f'User ID: {created_user["id"]}')
+    print(f"User ID: {created_user["id"]}")
 else:
-    print(f'Error creating user: {response.text}')
+    print(f"Error creating user: {response.text}")
 """
 
 def delete_user_by_otp(otp):
@@ -45,7 +45,7 @@ def delete_user_by_otp(otp):
 
     if response.status_code == 200:
         user = response.json()
-        user_id = user['id']
+        user_id = user["id"]
         delete_url = f"{BASE_URL}/{user_id}"
         print(f"URL: {delete_url}")
         delete_response = requests.delete(delete_url)
@@ -57,5 +57,5 @@ def delete_user_by_otp(otp):
     else:
         print(f"User with OTP {otp} not found.")
 
-if __name__ == '__main__':
-    delete_user_by_otp('314057')
+if __name__ == "__main__":
+    delete_user_by_otp("314057")

@@ -21,26 +21,22 @@ import time
 import os
 
 class PathStorage:
-    """Encapsulated path storage."""
     def __init__(self):
         self._path = ""
 
     @property
     def path(self):
-        """Get the stored path."""
         return self._path
 
     @path.setter
     def path(self, new_path):
-        """Set the stored path."""
         self._path = new_path
 
 class VideoCamera:
-    """Class to handle video camera operations."""
     def __init__(self):
         self.camera = cv2.VideoCapture(0)
         self.captured_image_path = PathStorage()  # Encapsulated path storage
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
         if not self.camera.isOpened():
             print("Failed to open the camera.")
@@ -54,7 +50,6 @@ class VideoCamera:
         self.camera.release()
 
     def get_frame(self):
-        """Get a frame from the camera feed."""
         if self.camera_status == "Error":
             return None
 
@@ -62,7 +57,6 @@ class VideoCamera:
         if not success:
             print("Failed to read frame from camera.")
             exit(2)
-            # return None
 
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray_frame, scaleFactor=1.15, minNeighbors=5, minSize=(30, 30))
@@ -74,7 +68,7 @@ class VideoCamera:
             # return "captured"
             if self.face_detected_time is None:
                 self.face_detected_time = time.time()
-            elif time.time() - self.face_detected_time >= 3:
+            elif time.time() - self.face_detected_time >= 2:
                 self.capture_image(frame, faces[0])
                 self.face_detected_time = None
                 print(f"CAPTURE_IMAGE FROM FUNCTION: {self.captured_image_path.path}")
@@ -88,11 +82,10 @@ class VideoCamera:
         for (x, y, w, h) in faces:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-        ret, jpeg = cv2.imencode('.jpg', frame)
+        ret, jpeg = cv2.imencode(".jpg", frame)
         return jpeg.tobytes()
 
     def capture_image(self, frame, face_coords):
-        """Capture and save an image when a face is detected."""
         # Reset the path storage
         self.captured_image_path.path = ""
 
@@ -120,9 +113,7 @@ class VideoCamera:
         return path
     
     def get_captured_path(self):
-        """Get the path of the captured image."""
         return self.captured_image_path.path
     
     def set_captured_path(self, new_path):
-        """Set the path of the captured image."""
         self.captured_image_path.path = new_path
