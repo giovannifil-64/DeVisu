@@ -16,32 +16,26 @@
 * limitations under the License.
 -->
 
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>DeVisu - Remove a person</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block title %}Remove a person - DeVisu{% endblock %}
 
-<body>
-    <div class="step-bar">
-        <div class="step {% if step >= 1 %}current{% endif %}"></div>
-        <div class="step {% if step >= 2 %}current{% endif %}"></div>
-        <div class="step {% if step >= 3 %}current{% endif %}"></div>
-    </div>
+{% block content %}
+<div class="step-bar">
+    <div class="step {% if step >= 1 %}current{% endif %}"></div>
+    <div class="step {% if step >= 2 %}current{% endif %}"></div>
+    <div class="step {% if step >= 3 %}current{% endif %}"></div>
+</div>
 
-    <div class="content">
-        <h2>Remove a person</h2>
-        <img src="{{ url_for('static', filename='img/person_remove.svg') }}" alt="Verified" class="logo">
-        <p>Enter the OTP given during setup.</p>
-        <form action="{{ url_for('delete_otp') }}" method="post">
-            <!-- <label for="otp">Enter OTP:</label> -->
-            <input type="text" id="otp" name="otp" required>
-            <br>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-</body>
-
-</html>
+<div class="content">
+    <h2>Remove a person</h2>
+    <img src="{{ url_for('static', filename='img/person_remove.svg') }}" alt="Verified" class="logo">
+    <p>Enter the OTP given during setup.</p>
+    <form action="{{ url_for('delete_otp') }}" method="post">
+        <!-- <label for="otp">Enter OTP:</label> -->
+        <input type="text" id="otp" name="otp" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

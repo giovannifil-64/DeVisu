@@ -16,35 +16,26 @@
 * limitations under the License.
 -->
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enter Your Name</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block title %}Enter the person's name - DeVisu{% endblock %}
 
-<body>
-    <div class="step-bar">
-        <div class="step {% if step >= 1 %}current{% endif %}"></div>
-        <div class="step {% if step >= 2 %}current{% endif %}"></div>
-        <div class="step {% if step >= 3 %}current{% endif %}"></div>
-        <div class="step {% if step >= 4 %}current{% endif %}"></div>
-    </div>
+{% block content %}
+<div class="step-bar">
+    <div class="step {% if step >= 1 %}current{% endif %}"></div>
+    <div class="step {% if step >= 2 %}current{% endif %}"></div>
+    <div class="step {% if step >= 3 %}current{% endif %}"></div>
+    <div class="step {% if step >= 4 %}current{% endif %}"></div>
+</div>
 
-    <div class="content">
-        <h2>Add a new person</h2>
-        <img src="{{ url_for('static', filename='img/person_add.svg') }}"alt="Verified" class="logo">
-        <p>Write your name below:</p>
-        <form method="POST" action="/add_name">
-            <input type="text" name="username" placeholder="Your Name" required>
-            <br>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-
-</body>
-
-</html>
+<div class="content">
+    <h2>Add a new person</h2>
+    <img src="{{ url_for('static', filename='img/person_add.svg') }}"alt="Verified" class="logo">
+    <p>Write your name below:</p>
+    <form method="POST" action="/add_name">
+        <input type="text" name="username" placeholder="Your Name" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

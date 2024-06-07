@@ -16,41 +16,41 @@
 * limitations under the License.
 -->
 
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeVisu - Welcome</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block title %}Welcome - DeVisu{% endblock %}
 
-<body>
-    <div id="first-step">
-        <h1>Welcome to</h1>
-        <img src="static/img/DeVisu.svg" alt="DeVisu logo" class="home_logo">
+{% block content %}
+<div id="first-step">
+    <h1>Welcome to</h1>
+    <img src="static/img/DeVisu.svg" alt="DeVisu logo" class="home_logo">
 
-        <!-- <p>DeVisu is a facial recognition system that allows you to add, verify and remove people from a database.</p> -->
+    <p>DeVisu is a facial verification system that allows you to add, verify and remove people from a database.</p>
 
-        <a href="/add_name">
-            <button class="distance-button">
-                <span class="large-text">Add a new person.</span>
-            </button>
-        </a>
+    {% if is_database_empty %}
+    <p>Let's start by adding a new person to the database</p>
+    {% endif %}
 
-        <a href="{{ url_for('verify_otp') }}">
-            <button class="distance-button">
-                <span class="large-text">Verify a person.</span>
-            </button>
-        </a>
+    <a href="/add_name">
+        <button class="distance-button">
+            <span class="large-text">Add a new person</span>
+        </button>
+    </a>
 
-        <a href="/delete_otp">
-            <button class="distance-button">
-                <span class="large-text">Remove a person.</span>
-            </button>
-        </a>
-    </div>
-</body>
+    {% if not is_database_empty %}
+    <a href="{{ url_for('verify_otp') }}">
+        <button class="distance-button">
+            <span class="large-text">Verify a person</span>
+        </button>
+    </a>
 
-</html>
+    <a href="/delete_otp">
+        <button class="distance-button">
+            <span class="large-text">Remove a person</span>
+        </button>
+    </a>
+    {% endif %}
+</div>
+
+<!-- <div class="footer">Copyright © 2024, Giovanni Filippini</div> -->
+{% endblock %}

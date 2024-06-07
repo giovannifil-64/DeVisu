@@ -75,7 +75,8 @@ def home():
     # if camera_status.startswith("Error"):
     #     print(f"(app.index)Error: {camera_status}")
     #     return camera_status
-    return render_template("home.html")
+    is_empty = is_database_empty()
+    return render_template("home.html", is_database_empty=is_empty)
 
 ### Add a new person to the database ###
 
@@ -310,6 +311,10 @@ def get_user_by_otp(otp):
         return user
     else:
         return jsonify({"error": "User not found"}), 404
+    
+@app.route('/open_external_link/<path:url>')
+def open_external_link(url):
+    return redirect(f'https://{url}', code=302)
 
 # Utils functions
 def release_camera():
@@ -346,10 +351,15 @@ def generate(camera):
             break
 
 def delete_all_images():
-    for file in os.listdir("*/DeVisu/"):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    os.chdir(script_dir)
+    for file in os.listdir(script_dir):
         if file.endswith(".jpg"):
-            os.remove(file)
-        
+            file_path = os.path.join(script_dir, file)
+            print(f"Deleted file: {file} at path: {file_path}")
+            os.remove(file_path)
+            
 def get_user_by_otp(otp):
     url = f"{BASE_URL}/by_otp/{otp}"
     response = requests.get(url)
@@ -377,6 +387,11 @@ def delete_user_by_otp(otp):
             print(f"Failed to delete user with OTP {otp}. Error: {delete_response.text}")
     else:
         print(f"User with OTP {otp} not found.")
+
+def is_database_empty():
+    users = read_all()
+    print(f"Total users: {len(users)}")
+    return len(users) == 0
 
 # Initialize the database
 setup_database()
