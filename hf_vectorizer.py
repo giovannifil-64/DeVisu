@@ -48,7 +48,7 @@ def get_face_vector(image_path):
         print(f"Error occurred during face vector generation: {e}")
         return None
 
-def compare_vectors(db_vector, camera_vector, tolerance=0.5):
+def compare_vectors(db_vector, camera_vector, tolerance=0.45):
     if db_vector is None or len(db_vector) == 0 or camera_vector is None:
         return False
     
@@ -56,9 +56,7 @@ def compare_vectors(db_vector, camera_vector, tolerance=0.5):
     arracy_vct2 = np.atleast_2d(camera_vector)
     
     distances = np.linalg.norm(arracy_vct1 - arracy_vct2, axis=1)
-    
     return np.any(distances <= tolerance)
-
     
 def base64_encoder(vector):
     face_vector_bytes = vector.tobytes()

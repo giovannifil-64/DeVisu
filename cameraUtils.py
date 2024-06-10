@@ -35,7 +35,7 @@ class PathStorage:
 class VideoCamera:
     def __init__(self):
         self.camera = cv2.VideoCapture(0)
-        self.captured_image_path = PathStorage()  # Encapsulated path storage
+        self.captured_image_path = PathStorage()
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
         if not self.camera.isOpened():
@@ -47,7 +47,8 @@ class VideoCamera:
             self.face_detected_time = None
 
     def __del__(self):
-        self.camera.release()
+        if self.camera.isOpened():
+            self.camera.release()
 
     def get_frame(self):
         if self.camera_status == "Error":
@@ -55,17 +56,13 @@ class VideoCamera:
 
         success, frame = self.camera.read()
         if not success:
-            print("Failed to read frame from camera.")
+            print("Failed to read frame from camera. Retrying...")
             exit(2)
 
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray_frame, scaleFactor=1.15, minNeighbors=5, minSize=(30, 30))
-
+                        
         if len(faces) == 1:
-            # time.sleep(2)  # Wait for 2 seconds before capturing the image
-            # self.capture_image(frame, faces[0])
-            # print(f"CAPTURE_IMAGE FROM FUNCTION: {self.captured_image_path.path}")
-            # return "captured"
             if self.face_detected_time is None:
                 self.face_detected_time = time.time()
             elif time.time() - self.face_detected_time >= 2:
