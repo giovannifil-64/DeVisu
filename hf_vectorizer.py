@@ -22,7 +22,6 @@ import face_recognition
 import numpy as np
 
 def get_face_vector(image_path):
-
     try:
         image = cv2.imread(image_path)
         if image is None:
@@ -48,17 +47,18 @@ def get_face_vector(image_path):
     except Exception as e:
         print(f"Error occurred during face vector generation: {e}")
         return None
-    
-def compare_vectors(vector1, vector2, threshold=0.45):
-    if vector1 is None or vector2 is None:
+
+def compare_vectors(db_vector, camera_vector, tolerance=0.5):
+    if db_vector is None or len(db_vector) == 0 or camera_vector is None:
         return False
     
-    scalar_product = np.dot(vector1, vector2)
-    norm_vector1 = np.linalg.norm(vector1)
-    norm_vector2 = np.linalg.norm(vector2)
-    similarity = scalar_product / (norm_vector1 * norm_vector2)
+    arracy_vct1 = np.atleast_2d(db_vector)
+    arracy_vct2 = np.atleast_2d(camera_vector)
     
-    return similarity >= threshold
+    distances = np.linalg.norm(arracy_vct1 - arracy_vct2, axis=1)
+    
+    return np.any(distances <= tolerance)
+
     
 def base64_encoder(vector):
     face_vector_bytes = vector.tobytes()
@@ -69,33 +69,3 @@ def base64_decoder(base64_string):
     decoded_bytes = base64.b64decode(base64_string)
     vector = np.frombuffer(decoded_bytes, dtype=np.float64)
     return vector
-
-"""if __name__ == "__main__":
-    # Test the functions
-    image1 = "static/img/img_2.jpg"
-    image2 = "static/img/img_3.jpg"
-    
-    vector1 = get_face_vector(image1)
-    vector2 = get_face_vector(image2)
-    
-    if vector1 is not None and vector2 is not None:
-        print("Face vectors extracted successfully")
-        print("Vector 1:", vector1)
-        print("Vector 2:", vector2)
-        
-        base64_string1 = base64_encoder(vector1)
-        base64_string2 = base64_encoder(vector2)
-        
-        print("Base64 String 1:", base64_string1)
-        print("Base64 String 2:", base64_string2)
-        
-        vector1_decoded = base64_decoder(base64_string1)
-        vector2_decoded = base64_decoder(base64_string2)
-        
-        print("Decoded Vector 1:", vector1_decoded)
-        print("Decoded Vector 2:", vector2_decoded)
-        
-        result = compare_face_vectors(vector1, vector2)
-        print("Face vectors match:", result)
-    else:
-        print("No face detected in one or both images")"""
