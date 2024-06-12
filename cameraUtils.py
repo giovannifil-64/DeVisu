@@ -83,7 +83,6 @@ class VideoCamera:
         return jpeg.tobytes()
 
     def capture_image(self, frame, face_coords):
-        # Reset the path storage
         self.captured_image_path.path = ""
 
         (x, y, w, h) = face_coords

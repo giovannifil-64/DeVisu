@@ -115,10 +115,16 @@ def add_vectorization():
 
     img_path = camera.get_captured_path()
     if img_path is None or img_path == "":
+        release_camera()
+        delete_all_images()
+        reset_captured_image_path()
         return "Image path is not available. Please capture an image first."
 
-    str_img_path = str(img_path)
-    vectorizer = hf_vectorizer.get_face_vector(str_img_path)
+    vectorizer = hf_vectorizer.get_face_vector(str(img_path))
+    release_camera()
+    delete_all_images()
+    reset_captured_image_path()
+    
     if vectorizer is None:
         return "Failed to generate face vector from the captured image."
     
@@ -126,7 +132,6 @@ def add_vectorization():
     set_global_otp(generate_otp())
     print(f"Generated OTP: {g_otp}")
 
-    delete_all_images()
     return render_template("add_vectorization.html", step=3)
 
 # Step 4: Show the result and the OTP to the user.
@@ -145,17 +150,13 @@ def add_result():
 
     if response.status_code == 201:
         created_user = response.json()
+        print(f"User created: {created_user}")
         result = "Person added correctly!"
         tmp_user, tmp_otp = g_name, g_otp
-
-        release_camera()
-        reset_globals()
         return render_template("result.html", step=4, operation="add", result=result, username=tmp_user, otp=tmp_otp)
     else:
         print(f"Error creating user: {response.text}")
-        error = "Error creating user"
-        release_camera()
-        reset_globals()
+        result = "Error creating user"
         return render_template("result.html", step=4, operation="add", result=result, username=tmp_user, otp=tmp_otp)
 
 ### Verify a person in the database ###
@@ -179,10 +180,8 @@ def verify_otp():
 # Step 2: Capture the image of the person to verify
 @app.route("/verify_capture")
 def verify_capture():
-    release_camera()
-    reset_captured_image_path()
-
     camera_status = initialize_camera()
+    
     if camera_status.startswith("Error"):
         return camera_status
 
@@ -196,43 +195,36 @@ def verify_capture():
 @app.route("/verify_check")
 def verify_check():
     global g_obtained_vector
-
+    
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
         
     img_path = camera.get_captured_path()
-    
     if img_path is None or img_path == "":
         release_camera()
+        delete_all_images()
+        reset_captured_image_path()
         return render_template("result.html", error="Image path is not available. Please capture an image first.", step=3, operation="verify")
 
-    str_img_path = str(img_path)
-    generated_vector = hf_vectorizer.get_face_vector(str_img_path)
+    generated_vector = hf_vectorizer.get_face_vector(str(img_path))
     release_camera()
-    # delete_all_images()
+    delete_all_images()
+    reset_captured_image_path()
 
     if g_obtained_vector is None:
-        # release_camera()
         return render_template("result.html", error="No face detected during verification.", step=3, operation="verify")
 
     if generated_vector is None:
-        # release_camera()
         return render_template("result.html", error="Failed to generate face vector from the captured image.", step=3, operation="verify")
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Verification failed.")
         result = "Verification failed."
-        # release_camera()
-        # delete_all_images()
-        reset_captured_image_path()
         return render_template("result.html", result=result, step=3, operation="verify")
     else:
         print("Verification successful.")
         result = "Verification successful!"
-        # release_camera()
-        # delete_all_images()
-        reset_captured_image_path()
         return render_template("result.html", result=result, step=3, operation="verify")
 
 
@@ -258,10 +250,8 @@ def delete_otp():
 # Step 2: Capture the image of the person to delete
 @app.route("/delete_capture")
 def delete_capture():
-    release_camera()
-    reset_captured_image_path()
-
     camera_status = initialize_camera()
+    
     if camera_status.startswith("Error"):
         return camera_status
 
@@ -275,7 +265,7 @@ def delete_capture():
 @app.route("/delete_check")
 def delete_check():
     global g_obtained_vector, g_otp
-
+    
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
@@ -283,37 +273,37 @@ def delete_check():
     img_path = camera.get_captured_path()
     if img_path is None or img_path == "":
         release_camera()
+        delete_all_images()
+        reset_captured_image_path()
         return render_template("result.html", error="Image path is not available. Please capture an image first.", step=3, operation="verify")
 
-    str_img_path = str(img_path)
-    generated_vector = hf_vectorizer.get_face_vector(str_img_path)
+    generated_vector = hf_vectorizer.get_face_vector(str(img_path))
+    release_camera()
+    delete_all_images()
+    reset_captured_image_path()
 
     if g_obtained_vector is None:
-        release_camera()
         return render_template("result.html", error="No face detected during deletion.", step=3)
 
     if generated_vector is None:
-        release_camera()
         return render_template("result.html", error="Failed to generate face vector from the captured image.", step=3, operation="delete")
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Deletion failed.")
         result = "Deletion failed."
-        release_camera()
-        reset_captured_image_path()
         return render_template("result.html", result=result, step=3, operation="delete")
     else:
         delete_user_by_otp(g_otp)
         print("Deletion successful!")
         result = "Deletion successful!"
-        release_camera()
-        reset_captured_image_path()
         return render_template("result.html", result=result, step=3, operation="delete")
+
 
 # utils routes
 @app.route("/video_feed")
 def video_feed():
     camera_status = initialize_camera()
+    
     if camera_status.startswith("Error"):
         return camera_status
     return Response(generate(camera), mimetype="multipart/x-mixed-replace; boundary=frame")
@@ -335,10 +325,7 @@ def get_user_by_otp(otp):
         return user
     else:
         return jsonify({"error": "User not found"}), 404
-    
-# @app.route('/open_external_link/<path:url>')
-# def open_external_link(url):
-#     return redirect(f'https://{url}', code=302)
+
 
 # Utils functions
 def release_camera():
@@ -378,20 +365,21 @@ def generate(camera):
 
 def delete_all_images():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
     os.chdir(script_dir)
+    
     for file in os.listdir(script_dir):
         if file.endswith(".jpg"):
             file_path = os.path.join(script_dir, file)
-            print(f"Deleted file: {file} at path: {file_path}")
             os.remove(file_path)
 
 def reset_captured_image_path():
     global camera
+    
     if camera is not None:
         camera.captured_image_path.path = ""
             
 def get_user_by_otp(otp):
+    otp = otp.strip()
     url = f"{BASE_URL}/by_otp/{otp}"
     response = requests.get(url)
 
@@ -403,6 +391,7 @@ def get_user_by_otp(otp):
         return None
     
 def delete_user_by_otp(otp):
+    otp = otp.strip()
     url = f"{BASE_URL}/by_otp/{otp}"
     response = requests.get(url)
 
