@@ -118,7 +118,7 @@ def add_vectorization():
         release_camera()
         delete_all_images()
         reset_captured_image_path()
-        return "Image path is not available. Please capture an image first."
+        return render_template("result.html", error="Image path is not available. Please capture an image first.", step=4, operation="add")
 
     vectorizer = hf_vectorizer.get_face_vector(str(img_path))
     release_camera()
@@ -126,7 +126,7 @@ def add_vectorization():
     reset_captured_image_path()
     
     if vectorizer is None:
-        return "Failed to generate face vector from the captured image."
+        return render_template("result.html", error="Failed to generate face vector from the captured image.", step=4, operation="add")
     
     set_global_vector(vectorizer)
     set_global_otp(generate_otp())
@@ -151,13 +151,11 @@ def add_result():
     if response.status_code == 201:
         created_user = response.json()
         print(f"User created: {created_user}")
-        result = "Person added correctly!"
         tmp_user, tmp_otp = g_name, g_otp
-        return render_template("result.html", step=4, operation="add", result=result, username=tmp_user, otp=tmp_otp)
+        return render_template("result.html", step=4, operation="add", result="Person added correctly!", username=tmp_user, otp=tmp_otp)
     else:
         print(f"Error creating user: {response.text}")
-        result = "Error creating user"
-        return render_template("result.html", step=4, operation="add", result=result, username=tmp_user, otp=tmp_otp)
+        return render_template("result.html", step=4, operation="add", result="Error creating user", username=tmp_user, otp=tmp_otp)
 
 ### Verify a person in the database ###
 
@@ -174,8 +172,7 @@ def verify_otp():
             set_global_obtained_vector(base64_decoder(user["vector"]))
             return render_template("verify_capture.html", user=user, step=1)
         else:
-            error = f"User with OTP {otp} not found. Please try again."
-            return render_template("result.html", error=error, step=3)
+            return render_template("result.html", error=f"The person with OTP {otp} not found. Please try again.", step=3)
         
 # Step 2: Capture the image of the person to verify
 @app.route("/verify_capture")
@@ -220,12 +217,10 @@ def verify_check():
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Verification failed.")
-        result = "Verification failed."
-        return render_template("result.html", result=result, step=3, operation="verify")
+        return render_template("result.html", result="Verification failed.", step=3, operation="verify")
     else:
         print("Verification successful.")
-        result = "Verification successful!"
-        return render_template("result.html", result=result, step=3, operation="verify")
+        return render_template("result.html", result="Verification successful!", step=3, operation="verify")
 
 
 ### Remove a person from the database ###
@@ -244,8 +239,7 @@ def delete_otp():
             set_global_otp(otp)
             return render_template("delete_capture.html", user=user, step=1)
         else:
-            error = f"The person with OTP {otp} not found. Please try again."
-            return render_template("result.html", error=error, step=3, operation="delete")
+            return render_template("result.html", error=f"The person with OTP {otp} not found. Please try again.", step=3, operation="delete")
 
 # Step 2: Capture the image of the person to delete
 @app.route("/delete_capture")
@@ -265,7 +259,7 @@ def delete_capture():
 @app.route("/delete_check")
 def delete_check():
     global g_obtained_vector, g_otp
-    
+
     camera_status = initialize_camera()
     if camera_status.startswith("Error"):
         return camera_status
@@ -290,13 +284,11 @@ def delete_check():
 
     if not compare_vectors(g_obtained_vector, generated_vector):
         print("Deletion failed.")
-        result = "Deletion failed."
-        return render_template("result.html", result=result, step=3, operation="delete")
+        return render_template("result.html", result="Deletion failed.", step=3, operation="delete")
     else:
         delete_user_by_otp(g_otp)
         print("Deletion successful!")
-        result = "Deletion successful!"
-        return render_template("result.html", result=result, step=3, operation="delete")
+        return render_template("result.html", result="Deletion successful!", step=3, operation="delete")
 
 
 # utils routes

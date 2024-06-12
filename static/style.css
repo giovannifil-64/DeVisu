@@ -101,7 +101,7 @@ form {
     position: absolute;
     top: 25%;
     left: 50%;
-    transform: translate(-50%, -25%);
+    transform: translate(-50%, -15%);
 }
 
 .logo {
@@ -132,7 +132,7 @@ form {
     text-align: center;
     position: absolute;
     left: 50%;
-    transform: translate(-50%, -25%);
+    transform: translate(-50%, -15%);
     display: flex;
     flex-direction: column;
     justify-content: center;
