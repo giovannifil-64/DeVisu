@@ -275,7 +275,7 @@ def delete_check():
         release_camera()
         delete_all_images()
         reset_captured_image_path()
-        return render_template("result.html", error="Image path is not available. Please capture an image first.", step=3, operation="verify")
+        return render_template("result.html", error="DELETE: Image path is not available. Please capture an image first.", step=3, operation="delete")
 
     generated_vector = hf_vectorizer.get_face_vector(str(img_path))
     release_camera()
@@ -283,7 +283,7 @@ def delete_check():
     reset_captured_image_path()
 
     if g_obtained_vector is None:
-        return render_template("result.html", error="No face detected during deletion.", step=3)
+        return render_template("result.html", error="No face detected during deletion.", step=3, operation="delete")
 
     if generated_vector is None:
         return render_template("result.html", error="Failed to generate face vector from the captured image.", step=3, operation="delete")

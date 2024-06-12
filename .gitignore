@@ -5,6 +5,7 @@ __pycache__/
 *$py.class
 venv/
 devisu/
+devisu_env/
 
 ### VisualStudioCode ###
 .vscode/*
