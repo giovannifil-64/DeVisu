@@ -34,30 +34,59 @@ class PathStorage:
 
 class VideoCamera:
     def __init__(self):
-        self.camera = cv2.VideoCapture(0)
+        self.camera = None
+        self.camera_status = "Not Initialized"
+        self.face_detected_time = None
         self.captured_image_path = PathStorage()
-        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        if self.face_cascade.empty():
+            print("Error loading face cascade classifier.")
+            self.camera_status = "Error"
 
+    def initialize_camera(self):
+        if self.camera is not None:
+            self.release_camera()
+        
+        self.camera = cv2.VideoCapture(0)
         if not self.camera.isOpened():
             print("Failed to open the camera.")
-            exit(1)
+            self.camera_status = "Error"
         else:
-            print("Camera opened successfully.")
+            print(f"Camera opened successfully. Backend: {self.camera.getBackendName()}")
+            print(f"Frame width: {self.camera.get(cv2.CAP_PROP_FRAME_WIDTH)}")
+            print(f"Frame height: {self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
+            print(f"FPS: {self.camera.get(cv2.CAP_PROP_FPS)}")
             self.camera_status = "Success"
-            self.face_detected_time = None
+
+    def release_camera(self):
+        if self.camera is not None and self.camera.isOpened():
+            self.camera.release()
+            self.camera = None
+            self.camera_status = "Released"
+            print("Camera released")
 
     def __del__(self):
-        if self.camera.isOpened():
-            self.camera.release()
+        self.release_camera()
 
     def get_frame(self):
-        if self.camera_status == "Error":
+        if self.camera is None or not self.camera.isOpened():
+            self.initialize_camera()
+        
+        if self.camera_status == "Error" or not self.camera.isOpened():
+            print("Camera is not available or opened.")
             return None
 
-        success, frame = self.camera.read()
-        if not success:
+        max_retries = 5
+        for _ in range(max_retries):
+            success, frame = self.camera.read()
+            if success:
+                break
             print("Failed to read frame from camera. Retrying...")
-            exit(2)
+            time.sleep(0.5)
+        
+        if not success:
+            print("Failed to read frame after multiple attempts.")
+            return None
 
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.face_cascade.detectMultiScale(gray_frame, scaleFactor=1.15, minNeighbors=5, minSize=(30, 30))
@@ -70,10 +99,7 @@ class VideoCamera:
                 self.face_detected_time = None
                 print(f"CAPTURE_IMAGE FROM FUNCTION: {self.captured_image_path.path}")
                 return "captured"
-        elif len(faces) > 1 or len(faces) == 0:
-            self.face_detected_time = None
         else:
-            print("No face detected.")
             self.face_detected_time = None
 
         for (x, y, w, h) in faces:
@@ -107,9 +133,24 @@ class VideoCamera:
         self.captured_image_path.path = path
         print(f"CAPTURE_IMAGE FROM CLASS: {self.captured_image_path.path}")
         return path
+    
+    def ensure_camera_is_open(self):
+        if not self.camera.isOpened():
+            print("Attempting to reopen the camera...")
+            self.camera.release()
+            self.camera = cv2.VideoCapture(0)
+            if not self.camera.isOpened():
+                print("Failed to reopen the camera.")
+                self.camera_status = "Error"
+            else:
+                print("Camera reopened successfully.")
+                self.camera_status = "Success"
 
     def get_captured_path(self):
+        print(f"Retrieving captured path: {self.captured_image_path.path}")
         return self.captured_image_path.path
 
     def set_captured_path(self, new_path):
         self.captured_image_path.path = new_path
+
+
